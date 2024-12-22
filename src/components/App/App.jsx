@@ -4,13 +4,14 @@ import ImageGallery from '../ImageGallery/ImageGallery';
 import Loader from '../Loader/Loader';
 import LoadMoreBtn from '../LoadMoreBtn/LoadMoreBtn';
 import ImageModal from '../ImageModal/ImageModal';
+import ErrorMessage from '../ErrorMessage/ErrorMessage';
 import { fetchImages } from '../../images-api.js';
 import css from './App.module.css';
 
 function App() {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState(null);
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true); // Состояние для отслеживания доступности данных
@@ -24,7 +25,7 @@ function App() {
       setImages([]);
       setLoading(true);
       setPage(1);
-      setError(false);
+      setError(null);
       setHasMore(true); // Сбрасываем флаг при новом поиске
 
       const data = await fetchImages(searchQuery, 12, 1);
@@ -34,8 +35,10 @@ function App() {
         setHasMore(false); // Если меньше 12 изображений, данных больше нет
       }
     } catch (error) {
-      console.error('Ошибка:', error);
-      setError(true);
+      const errorCode = error.code;
+      const errorMessage = `Unable to connect to server: ${error.message}; code: ${errorCode}`;
+
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -64,8 +67,8 @@ function App() {
         });
       }, 100); // Небольшая задержка для завершения рендеринга
     } catch (error) {
-      console.error('Ошибка при загрузке дополнительных изображений:', error);
-      setError(true);
+      const errorMessage = 'Ошибка при загрузке дополнительных изображений:';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -87,11 +90,7 @@ function App() {
     <div className={css.app}>
       <SearchBar onSubmit={handleSearch} />
       {loading && <Loader />} {/* Иконка загрузки */}
-      {error && (
-        <div className={css.error}>
-          Ошибка загрузки данных. Попробуйте снова.
-        </div>
-      )}
+      {error && <ErrorMessage message={error} />}
       {images.length > 0 && (
         <>
           <ImageGallery items={images} onImageClick={openModal} />
