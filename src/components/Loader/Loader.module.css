@@ -1,0 +1,6 @@
+/* Loader.module.css */
+.loaderContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
