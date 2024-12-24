@@ -6,81 +6,81 @@ import LoadMoreBtn from '../LoadMoreBtn/LoadMoreBtn';
 import ImageModal from '../ImageModal/ImageModal';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
 import { fetchImages } from '../../images-api.js';
+import toast, { Toaster } from 'react-hot-toast';
 import css from './App.module.css';
 
 function App() {
+  const perPage = 12;
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true); // Состояние для отслеживания доступности данных
+  const [hasMore, setHasMore] = useState(true); // стан для відстеження наявності  фото
   const [selectedImage, setSelectedImage] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  // Обработка поиска
-  const handleSearch = async searchQuery => {
+  const createPagination = data => {
+    if (data.images.length < perPage) {
+      setHasMore(false); // зупиняємо підзавантаження, фото вже немає
+      toast("We're sorry, but you've reached the end of search results.");
+    }
+  };
+
+  // обробка першого пошуку
+  const handleSearch = async query => {
     try {
-      setQuery(searchQuery);
+      setQuery(query);
       setImages([]);
       setLoading(true);
       setPage(1);
       setError(null);
-      setHasMore(true); // Сбрасываем флаг при новом поиске
+      setHasMore(true); // скинути при новому пошуку
 
-      const data = await fetchImages(searchQuery, 12, 1);
+      const data = await fetchImages(query, perPage, page);
 
       setImages(data.images);
-      if (data.images.length < 12) {
-        setHasMore(false); // Если меньше 12 изображений, данных больше нет
-      }
+      createPagination(data);
     } catch (error) {
-      const errorCode = error.code;
-      const errorMessage = `Unable to connect to server: ${error.message}; code: ${errorCode}`;
-
+      const errorMessage = `Unable to connect to server: ${error.message}; code: ${error.code}`;
       setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  // Обработка загрузки следующих изображений
+  // обробка завантаження наступних фото
   const handleLoadMore = async () => {
     try {
       setLoading(true);
       const nextPage = page + 1;
       setPage(nextPage);
 
-      const data = await fetchImages(query, 12, nextPage);
+      const data = await fetchImages(query, perPage, nextPage);
 
       setImages(prevImages => [...prevImages, ...data.images]);
 
-      if (data.images.length < 12) {
-        setHasMore(false); // Если данных меньше 12, останавливаем подгрузку
-      }
+      createPagination(data);
 
-      // Прокрутка вниз после загрузки
       setTimeout(() => {
         window.scrollTo({
           top: document.documentElement.scrollHeight,
           behavior: 'smooth',
         });
-      }, 100); // Небольшая задержка для завершения рендеринга
+      }, 100); // затримка для закінчення рендеринга, інакше прокрутка не працює
     } catch (error) {
-      const errorMessage = 'Ошибка при загрузке дополнительных изображений:';
+      const errorMessage = `Unable to connect to server: ${error.message}; code: ${error.code}`;
       setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  // Открытие модального окна
   const openModal = image => {
     setSelectedImage(image);
     setModalOpen(true);
   };
 
-  // Закрытие модального окна
   const closeModal = () => {
     setSelectedImage(null);
     setModalOpen(false);
@@ -89,12 +89,11 @@ function App() {
   return (
     <div className={css.app}>
       <SearchBar onSubmit={handleSearch} />
-      {loading && <Loader />} {/* Иконка загрузки */}
+      {loading && <Loader />}
       {error && <ErrorMessage message={error} />}
       {images.length > 0 && (
         <>
           <ImageGallery items={images} onImageClick={openModal} />
-          {/* Отображаем кнопку только если есть ещё данные */}
           {hasMore && !loading && <LoadMoreBtn onClick={handleLoadMore} />}
         </>
       )}
@@ -105,6 +104,10 @@ function App() {
           onClose={closeModal}
         />
       )}
+      <Toaster
+        position="top-center"
+        toastOptions={{ className: css.toasterContainer }}
+      />
     </div>
   );
 }

@@ -1,22 +1,20 @@
 import { BsSearch } from 'react-icons/bs';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 
 import css from './SearchBar.module.css';
 
 const SearchBar = ({ onSubmit }) => {
-  const notify = message => toast(message);
-
   const handleSubmit = evt => {
     evt.preventDefault();
     const form = evt.target;
-    const img = form.elements.img.value.trim();
+    const query = form.elements.query.value.trim();
 
-    if (img === '') {
-      notify('You must enter text to search for images');
+    if (query === '') {
+      toast('You must enter text to search for images');
       return;
     }
 
-    onSubmit(img);
+    onSubmit(query);
     form.reset();
   };
 
@@ -24,7 +22,7 @@ const SearchBar = ({ onSubmit }) => {
     <header className={css.container}>
       <form onSubmit={handleSubmit} className={css.form}>
         <input
-          name="img"
+          name="query"
           className={css.input}
           type="text"
           autoComplete="off"
@@ -35,7 +33,6 @@ const SearchBar = ({ onSubmit }) => {
           <BsSearch size={20} />
         </button>
       </form>
-      <Toaster position="top-left" />
     </header>
   );
 };
