@@ -1,6 +1,5 @@
-import React from 'react';
 import Modal from 'react-modal';
-import css from './ImageModal.module.css'; // Импортируем стили
+import css from './ImageModal.module.css';
 
 // Устанавливаем элемент для привязки модального окна (важно для доступности)
 Modal.setAppElement('#root');
@@ -28,9 +27,9 @@ function ImageModal({ isOpen, image, onClose }) {
         <div className={css.modalInfo}>
           <h2>{image.description}</h2>
           <p>
-            Автор: <a href={image.author.portfolio}>{image.author.name}</a>
+            Author: <a href={image.author.portfolio}>{image.author.name}</a>
           </p>
-          <p>Лайков: {image.likes}</p>
+          <p>Likes: {image.likes}</p>
         </div>
       </div>
     </Modal>

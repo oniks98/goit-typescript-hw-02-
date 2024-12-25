@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-axios.defaults.baseURL = 'https://api.1unsplash.com/';
+axios.defaults.baseURL = 'https://api.unsplash.com/';
 
 const fetchImages = async (query, perPage, page) => {
   const API_KEY = 'knYehEae0WkMN_T4vgmU0_g8gFCAviIMZ5Y6O8W2n3Y';

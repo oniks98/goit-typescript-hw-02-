@@ -12,102 +12,92 @@ import css from './App.module.css';
 function App() {
   const perPage = 12;
   const [images, setImages] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true); // стан для відстеження наявності  фото
+  const [isHasMore, setIsHasMore] = useState(true); // стан для відстеження наявності  фото
   const [selectedImage, setSelectedImage] = useState(null);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const createPagination = data => {
-    if (data.images.length < perPage) {
-      setHasMore(false); // зупиняємо підзавантаження, фото вже немає
-      toast("We're sorry, but you've reached the end of search results.");
-    }
-  };
-
-  // обробка першого пошуку
-  const handleSearch = async query => {
+  // загальна функція для пошуку
+  const loadImages = async (query, page, isNewSearch = false) => {
     try {
-      setQuery(query);
-      setImages([]);
-      setLoading(true);
-      setPage(1);
+      setIsLoading(true);
       setError(null);
-      setHasMore(true); // скинути при новому пошуку
 
       const data = await fetchImages(query, perPage, page);
 
-      setImages(data.images);
-      createPagination(data);
+      setImages(prevImages =>
+        isNewSearch ? data.images : [...prevImages, ...data.images]
+      );
+
+      if (data.images.length < perPage) {
+        setIsHasMore(false); // зупиняємо підзавантаження, фото вже немає
+        toast("We're sorry, but you've reached the end of search results.");
+      }
     } catch (error) {
-      const errorMessage = `Unable to connect to server: ${error.message}; code: ${error.code}`;
+      const errorMessage = `Unable to load images: ${error.message}; code: ${error.code}`;
       setError(errorMessage);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  // обробка завантаження наступних фото
+  // пошук  зображення
+  const handleSearch = async query => {
+    setQuery(query);
+    setPage(1);
+    setIsHasMore(true);
+    setImages([]);
+    await loadImages(query, page, true);
+  };
+
+  // пошук наступних зображень
   const handleLoadMore = async () => {
-    try {
-      setLoading(true);
-      const nextPage = page + 1;
-      setPage(nextPage);
-
-      const data = await fetchImages(query, perPage, nextPage);
-
-      setImages(prevImages => [...prevImages, ...data.images]);
-
-      createPagination(data);
-
-      setTimeout(() => {
-        window.scrollTo({
-          top: document.documentElement.scrollHeight,
-          behavior: 'smooth',
-        });
-      }, 100); // затримка для закінчення рендеринга, інакше прокрутка не працює
-    } catch (error) {
-      const errorMessage = `Unable to connect to server: ${error.message}; code: ${error.code}`;
-      setError(errorMessage);
-    } finally {
-      setLoading(false);
-    }
+    const nextPage = page + 1;
+    setPage(nextPage);
+    await loadImages(query, nextPage);
+    setTimeout(() => {
+      window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: 'smooth',
+      });
+    }, 100); // затримка для прокрутки після рендерингу
   };
 
   const openModal = image => {
     setSelectedImage(image);
-    setModalOpen(true);
+    setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setSelectedImage(null);
-    setModalOpen(false);
+    setIsModalOpen(false);
   };
 
   return (
     <div className={css.app}>
-      <SearchBar onSubmit={handleSearch} />
-      {loading && <Loader />}
-      {error && <ErrorMessage message={error} />}
-      {images.length > 0 && (
-        <>
-          <ImageGallery items={images} onImageClick={openModal} />
-          {hasMore && !loading && <LoadMoreBtn onClick={handleLoadMore} />}
-        </>
-      )}
-      {modalOpen && (
-        <ImageModal
-          isOpen={modalOpen}
-          image={selectedImage}
-          onClose={closeModal}
-        />
-      )}
       <Toaster
         position="top-center"
         toastOptions={{ className: css.toasterContainer }}
       />
+      <SearchBar onSubmit={handleSearch} />
+      {isLoading && <Loader />}
+      {error && <ErrorMessage message={error} />}
+      {images.length > 0 && (
+        <>
+          <ImageGallery items={images} onImageClick={openModal} />
+          {isHasMore && !isLoading && <LoadMoreBtn onClick={handleLoadMore} />}
+        </>
+      )}
+      {isModalOpen && (
+        <ImageModal
+          isOpen={isModalOpen}
+          image={selectedImage}
+          onClose={closeModal}
+        />
+      )}
     </div>
   );
 }
