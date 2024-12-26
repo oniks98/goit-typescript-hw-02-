@@ -26,6 +26,7 @@ const fetchImages = async (query, perPage, page) => {
         avatar: image.user.profile_image.small,
       },
     })),
+    totalPages: response.data.total_pages,
   };
 };
 

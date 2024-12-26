@@ -1,9 +1,6 @@
 import Modal from 'react-modal';
 import css from './ImageModal.module.css';
 
-// Устанавливаем элемент для привязки модального окна (важно для доступности)
-Modal.setAppElement('#root');
-
 function ImageModal({ isOpen, image, onClose }) {
   if (!image) return null;
 
