@@ -1,7 +1,8 @@
+import { ImageGalleryProps } from './ImageGallery.types'; 
 import ImageCard from '../ImageCard/ImageCard';
 import css from './ImageGallery.module.css';
 
-function ImageGallery({ items, onImageClick }) {
+const ImageGallery = ({ items, onImageClick }: ImageGalleryProps) => {
   return (
     <ul className={css.gallery}>
       {items.map(item => (
@@ -15,6 +16,6 @@ function ImageGallery({ items, onImageClick }) {
       ))}
     </ul>
   );
-}
+};
 
 export default ImageGallery;

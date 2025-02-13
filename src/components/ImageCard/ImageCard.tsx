@@ -1,7 +1,8 @@
 import css from './ImageCard.module.css';
+import { ImageCardProps } from './ImageCard.types';  
 
-const ImageCard = ({ src, alt, onClick }) => {
-  const handleKeyDown = e => {
+const ImageCard = ({ src, alt, onClick }: ImageCardProps) => {  
+  const handleKeyDown = (e: React.KeyboardEvent) => {  
     if (e.key === 'Enter' || e.key === ' ') {
       onClick();
     }

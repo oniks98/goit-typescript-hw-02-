@@ -1,13 +1,15 @@
+import React from 'react';
 import { BsSearch } from 'react-icons/bs';
 import toast from 'react-hot-toast';
 
 import css from './SearchBar.module.css';
+import { SearchBarProps } from './SearchBar.types';  // 
 
-const SearchBar = ({ onSubmit }) => {
-  const handleSubmit = evt => {
+const SearchBar = ({ onSubmit }: SearchBarProps) => {
+  const handleSubmit = (evt: React.FormEvent) => {
     evt.preventDefault();
-    const form = evt.target;
-    const query = form.elements.query.value.trim();
+    const form = evt.target as HTMLFormElement;
+    const query = (form.elements.namedItem('query') as HTMLInputElement).value.trim();  
 
     if (query === '') {
       toast('You must enter text to search for images');

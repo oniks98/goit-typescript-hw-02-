@@ -1,7 +1,8 @@
+import { ImageModalProps } from './ImageModal.types';  
 import Modal from 'react-modal';
 import css from './ImageModal.module.css';
 
-function ImageModal({ isOpen, image, onClose }) {
+const ImageModal = ({ isOpen, image, onClose }: ImageModalProps) => {
   if (!image) return null;
 
   return (
@@ -31,6 +32,6 @@ function ImageModal({ isOpen, image, onClose }) {
       </div>
     </Modal>
   );
-}
+};
 
 export default ImageModal;
