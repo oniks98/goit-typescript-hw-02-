@@ -15,6 +15,21 @@ type FetchImagesResponse = {
   totalPages: number;
 };
 
+type UnsplashAPIResponse = {
+  results: {
+    id: string;
+    urls: { small: string; regular: string };
+    alt_description: string;
+    likes: number;
+    user: {
+      name: string;
+      portfolio_url: string;
+    };
+  }[];
+  total_pages: number;
+};
+
+
 type SearchBarProps = {
   onSubmit: (query: string) => void;
 };
@@ -42,6 +57,7 @@ type ErrorMessageProps = {
 export type {
   Image,
   FetchImagesResponse,
+  UnsplashAPIResponse,
   SearchBarProps,
   ImageGalleryProps,
   LoadMoreBtnProps,

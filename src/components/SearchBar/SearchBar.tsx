@@ -9,7 +9,7 @@ const SearchBar = ({ onSubmit }: SearchBarProps) => {
   const handleSubmit = (evt: React.FormEvent) => {
     evt.preventDefault();
     const form = evt.target as HTMLFormElement;
-    const query = (form.elements.namedItem('query') as HTMLInputElement).value.trim();  
+    const query = (form.elements.namedItem('query') as HTMLInputElement)?.value.trim();  
 
     if (query === '') {
       toast('You must enter text to search for images');
